@@ -509,13 +509,12 @@ On push/PR to `main`:
      - `ghcr.io/<OWNER>/<IMAGE_NAME>:<commit-sha>`
      - `ghcr.io/<OWNER>/<IMAGE_NAME>:latest`
 
-> **Note:**  
-> The GitHub Actions workflow automatically pushes a built image to GitHub Container Registry (GHCR) under:  
-> `ghcr.io/<OWNER>/<IMAGE_NAME>`.  
->  
-> If you fork this repo or want to publish under your own namespace, update the workflow to use your own `<OWNER>` and `<IMAGE_NAME>` values.  
->  
-> For normal users running locally or via Docker Compose, this is **not required** — Docker builds the image automatically.
+**Note:** The GitHub Actions workflow automatically pushes a built image to GitHub Container Registry (GHCR) under  
+`ghcr.io/<OWNER>/<IMAGE_NAME>`.
+
+If you fork this repo or want to publish under your own namespace, update the workflow to use your own `<OWNER>` and `<IMAGE_NAME>` values.
+
+For normal users running locally or via Docker Compose, this is **not required** — Docker builds the image automatically.
 
 
 3. **(Optional) Deploy on Self-Hosted Runner**
