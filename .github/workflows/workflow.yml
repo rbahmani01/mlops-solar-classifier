@@ -1,0 +1,120 @@
+name: workflow
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_NAME: solar-panel-classifier
+
+# 1) Continuous Integration: basic checks
+jobs:
+  integration:
+    name: Continuous Integration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install --no-cache-dir -r requirements.txt
+
+      # Very lightweight sanity check; replace/extend with pytest when ready
+      - name: Syntax check
+        run: |
+          python -m py_compile $(git ls-files '*.py')
+
+      # - name: Run unit tests
+      #   run: pytest
+
+
+  # 2) Build Docker image, smoke-test it, push to GitHub Container Registry
+  build-and-push-image:
+    name: Build & Push Docker image (GHCR)
+    needs: integration
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        run: |
+          echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            -t ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest \
+            .
+
+      - name: Smoke test container (Flask + /metrics)
+        run: |
+          docker run -d --name solar-app-test -p 8082:8082 -p 9101:9101 \
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+          # give the app time to start
+          sleep 25
+
+          # check Flask UI responds
+          curl -f http://localhost:8082 || (echo "Flask app not responding" && docker logs solar-app-test && exit 1)
+
+          # check Prometheus metrics endpoint responds
+          curl -f http://localhost:9101/metrics || (echo "Metrics endpoint not responding" && docker logs solar-app-test && exit 1)
+
+          docker rm -f solar-app-test
+
+      - name: Push image to GHCR
+        run: |
+          docker push ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker push ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+
+
+  # 3) Continuous Deployment (optional, requires a self-hosted runner with Docker)
+  deploy-self-hosted:
+    needs: build-and-push-image
+    runs-on: self-hosted
+    steps:
+      - name: Log in to GHCR
+        run: |
+          echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Set image ref
+        run: echo "IMAGE_REF=ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_ENV
+
+      - name: Pull latest image
+        run: docker pull $IMAGE_REF
+
+      - name: Stop existing container if running
+        run: |
+          docker stop solar-app || true
+          docker rm solar-app || true
+
+      - name: Run updated container
+        run: |
+          docker run -d --name solar-app \
+            -p 8082:8082 -p 9101:9101 \
+            -v /home/mn/projects/solar_panels_surface_image_classification/artifacts/training/efficientnet_b0:/app/artifacts \
+            $IMAGE_REF

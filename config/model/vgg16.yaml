@@ -1,0 +1,14 @@
+model:
+  name: "vgg16"
+  framework: "keras"
+  pretrained: true
+  include_top: false
+  image_size: [224, 224, 3]
+  num_classes: 6
+  weights: "imagenet"
+  head:
+    pooling: "avg"             
+    dense_units: [512]         
+    dense_activation: "gelu"   
+    dropout: [0.5]             # VGG needs stronger dropout than EfficientNet
+    classifier_activation: "softmax"

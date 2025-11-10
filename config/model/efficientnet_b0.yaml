@@ -1,0 +1,13 @@
+model:
+  name: "efficientnet_b0"
+  pretrained: true
+  include_top: false
+  image_size: [224, 224, 3]
+  num_classes: 6
+  weights: "imagenet"
+  head:
+    pooling: "avg+max"               # "avg" | "max" | "none" | "avg+max"
+    dense_units: [256]      # VGG often benefits from a bit larger head
+    dense_activation: "gelu"
+    dropout: [0.5]
+    classifier_activation: "softmax"

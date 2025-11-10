@@ -1,0 +1,85 @@
+stages:
+  data_ingestion:
+    cmd: python src/panelClassification/pipeline/stage_01_data_ingestion.py
+    deps:
+      - src/panelClassification/pipeline/stage_01_data_ingestion.py
+      - config/config.yaml
+    params:
+      - config/config.yaml:
+          - artifacts_config.data_ingestion.source_URL
+    outs:
+      - artifacts/data_ingestion/solar_panel_images
+
+  prepare_base_model:
+    cmd: python src/panelClassification/pipeline/stage_02_prepare_base_model.py
+    deps:
+      - src/panelClassification/pipeline/stage_02_prepare_base_model.py
+      - config/config.yaml
+      - config/model/efficientnet_b0.yaml
+      - config/model/efficientnet_v2_s.yaml
+      - config/model/vgg16.yaml
+    params:
+      - config/config.yaml:
+          - model_config.model_name
+          - model_config.backbone_unfreeze_last_layers_num
+    outs:
+      - artifacts/prepare_base_model
+
+  training:
+    cmd: python src/panelClassification/pipeline/stage_03_training.py
+    deps:
+      - src/panelClassification/pipeline/stage_03_training.py
+      - src/panelClassification/components/prepare_callbacks.py
+      - config/config.yaml
+      - config/training.yaml
+      - config/callbacks.yaml
+      - artifacts/data_ingestion/solar_panel_images
+      - artifacts/prepare_base_model
+    params:
+      - config/training.yaml:
+          - augmentation
+          - batch_size
+          - num_epochs
+          - shuffle
+          - val_split
+          - seed
+          - mixed_precision
+          - loss.name
+          - optimizer.name
+          - optimizer.lr
+          - optimizer.weight_decay
+          - optimizer.beta_1
+          - optimizer.beta_2
+          - optimizer.epsilon
+          - optimizer.momentum
+          - optimizer.nesterov
+          - optimizer.clipnorm
+          - optimizer.clipvalue
+      - config/callbacks.yaml:
+          - early_stopping.monitor
+          - early_stopping.mode
+          - early_stopping.patience
+          - early_stopping.min_delta
+          - early_stopping.restore_best_weights
+          - checkpoint.monitor
+          - checkpoint.mode
+          - checkpoint.save_best_only
+    outs:
+      - artifacts/training
+
+  evaluation:
+    cmd: python src/panelClassification/pipeline/stage_04_evaluation.py
+    deps:
+      - src/panelClassification/pipeline/stage_04_evaluation.py
+      - config/config.yaml
+      - config/training.yaml
+      - artifacts/data_ingestion/solar_panel_images
+      - artifacts/training
+    params:
+      - config/training.yaml:
+          - batch_size
+    metrics:
+      - scores.json:
+          cache: false
+
+      

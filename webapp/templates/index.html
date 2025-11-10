@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Solar Panel Classifier</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 30px;
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    .page-wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 36px;        
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 10px;
+      text-align: center;     
+    }
+
+    .subtitle {
+      font-size: 25px;        
+      color: #374151;
+      margin-bottom: 30px;
+      text-align: center;     
+      font-weight: 400;
+    }
+
+
+    .layout {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      background: #ffffff;
+      padding: 18px 18px 16px;
+      border-radius: 10px;
+      box-shadow: 0 4px 14px rgba(15,23,42,0.06);
+    }
+
+    .card.form-card {
+      flex: 1 1 380px;
+    }
+  .card.info-card {
+    flex: 1 1 260px;
+    font-size: 15px;   
+    color: #374151;    
+    line-height: 1.5;
+  }
+
+  .card.info-card b {
+    font-size: 16px;   
+    color: #111827;
+  }
+
+  .card.info-card .small {
+    font-size: 13px;   
+  }
+
+  .card.info-card .model-list {
+    font-size: 14px;   
+  }
+
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #374151;
+    }
+
+    .hint {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: -2px;
+      margin-bottom: 6px;
+    }
+
+    input[type="file"],
+    select,
+    input[type="number"] {
+      width: 100%;
+      padding: 7px 8px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      margin-bottom: 10px;
+      font-size: 13px;
+      background: #f9fafb;
+    }
+
+    input[type="file"] {
+      padding: 6px;
+      background: #ffffff;
+    }
+
+    button {
+      padding: 8px 18px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      background: #2563eb;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .predict-note {
+      display: inline-block;
+      font-size: 10px;
+      color: #9ca3af;
+      margin-left: 4px;
+    }
+
+    .preview-container {
+      margin-top: 8px;
+      display: none;
+    }
+
+    .preview-label {
+      font-size: 11px;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    #preview-img {
+      max-width: 100%;
+      max-height: 220px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      object-fit: contain;
+      background: #f9fafb;
+      padding: 4px;
+    }
+
+    .msg-box {
+      margin-top: 14px;
+      padding: 10px 10px 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .msg-success {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
+    }
+
+    .msg-error {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+    }
+
+    .results {
+      margin-top: 18px;
+    }
+
+    .results h3 {
+      margin: 0 0 4px;
+      font-size: 15px;
+    }
+
+    .top1-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .top1-prob {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 11px;
+    }
+
+    th, td {
+      padding: 6px 4px;
+      text-align: left;
+    }
+
+    th {
+      font-weight: 600;
+      color: #6b7280;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    tr:nth-child(even) td {
+      background: #f9fafb;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      font-size: 9px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      color: #4b5563;
+      margin-left: 6px;
+    }
+
+    .badge-important {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .model-list {
+      margin-top: 6px;
+      padding-left: 14px;
+    }
+
+    .model-list li {
+      margin-bottom: 2px;
+    }
+
+    .small {
+      font-size: 10px;
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 18px; }
+      .layout { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+  <h1>Solar Panel Surface Classification</h1>
+  <div class="subtitle">
+    Upload a solar panel image, select a model, and get surface defect predictions instantly.
+  </div>
+
+  <div class="layout">
+    <!-- LEFT: FORM -->
+    <div class="card form-card">
+      <form method="POST" action="/predict" enctype="multipart/form-data">
+        <label>Upload Image</label>
+        <div class="hint">Clear top-view or angled image of a single panel or small array.</div>
+        <input type="file" name="image" accept="image/*" required id="image-input">
+
+        <div class="preview-container" id="preview-container">
+          <div class="preview-label">Preview</div>
+          <img id="preview-img" alt="Selected image preview">
+        </div>
+
+        <label style="margin-top:10px;">Model Family</label>
+        <div class="hint">
+          Select the backbone you trained. If its model file is missing, you’ll see a clear warning instead of a crash.
+        </div>
+        <select name="family">
+          <option value="efficientnet_b0">efficientnet_b0</option>
+          <option value="mobilenet_v2">mobilenet_v2</option>
+          <option value="vgg16">vgg16</option>
+          <option value="resnet50">resnet50</option>
+          <option value="inception_v3">inception_v3</option>
+        </select>
+
+        <button type="submit">
+          ▶ Predict
+        </button>
+        <span class="predict-note">Model runs on server. Results appear below.</span>
+      </form>
+
+      <!-- RESULTS -->
+      {% if result %}
+      <div class="msg-box msg-success">
+        Prediction completed successfully.
+      </div>
+      <div class="results">
+        <h3>Prediction:</h3>
+      <div class="top1-label">
+        {{ result.top1.label }}
+      </div>
+
+      </div>
+      {% endif %}
+
+      {% if error %}
+      <div class="msg-box msg-error">
+        <b>Error:</b> {{ error }}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- RIGHT: INFO / STATUS -->
+    <div class="card info-card">
+      <b>How this tool works</b>
+      <p>
+        This interface sends your image to the selected model family and returns
+        class probabilities over:
+      </p>
+      <ul class="model-list">
+        <li>Bird-drop</li>
+        <li>Clean</li>
+        <li>Dusty</li>
+        <li>Electrical-damage</li>
+        <li>Physical-Damage</li>
+        <li>Snow-Covered</li>
+      </ul>
+
+      <p class="small">
+        <b>Model availability</b><br>
+        If the selected model is missing, you’ll see a red warning:
+        <span class="badge badge-important">Model not trained yet</span>
+        and no inference is attempted.
+      </p>
+
+      <p class="small">
+        <b>Tips for reliable predictions</b>
+        <ul class="model-list small">
+          <li>Use sharp images (no heavy blur / motion).</li>
+          <li>Avoid extreme shadows or strong reflections.</li>
+          <li>Try different backbones once they’re trained and compare results.</li>
+        </ul>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Simple client-side preview for usability
+  const input = document.getElementById("image-input");
+  const previewContainer = document.getElementById("preview-container");
+  const previewImg = document.getElementById("preview-img");
+
+  if (input) {
+    input.addEventListener("change", function() {
+      const file = this.files && this.files[0];
+      if (!file) {
+        previewContainer.style.display = "none";
+        previewImg.src = "";
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        previewImg.src = e.target.result;
+        previewContainer.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+model:
+  name: "efficientnet_v2_s"
+  framework: "keras"
+  pretrained: true
+  include_top: false
+  image_size: [224, 224, 3]
+  num_classes: 6
+  weights: "imagenet"
+  head:
+    pooling: "avg"
+    dense_units: [256]           # EfficientNet heads are usually smaller
+    dense_activation: "relu"
+    dropout: 0.2                 # single float is allowed
+    classifier_activation: "softmax"

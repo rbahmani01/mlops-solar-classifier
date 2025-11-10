@@ -1,0 +1,27 @@
+# ======= W&B =======
+wandb:
+  enable: false
+  project: "solar-panels-classification"
+  entity: null          # or "your-wandb-entity"
+  group: "${model.name}"  # groups runs by backbone (expanded in code)
+  job_type: "train"
+  tags: ["keras", "image", "transfer"]
+  notes: "baseline run with callbacks.yaml"
+  save_code: true
+  log_grads: false       # gradients can be large; enable only if needed
+  log_weights: false     # set true if you want weight histograms (slower)
+  watch_freq: 0          # 0 disables frequent model.watch; increases overhead otherwise
+
+# ======= EarlyStopping =======
+early_stopping:
+  monitor: "val_loss"
+  mode: "min"
+  patience: 3
+  min_delta: 0.01
+  restore_best_weights: true
+
+# ======= Checkpointing =======
+checkpoint:
+  monitor: "val_loss"
+  mode: "min"
+  save_best_only: true

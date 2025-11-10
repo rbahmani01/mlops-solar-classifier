@@ -1,0 +1,12 @@
+venv/
+artifacts/
+actions-runner/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.dvc
+.dvc/
+.git/
+.gitignore
