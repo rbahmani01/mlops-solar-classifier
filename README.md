@@ -2,7 +2,9 @@
 
 **MLOps-ready** system for classifying solar panel surface conditions from images.
 
-![Pipeline](assets/images/solar_panel_mlops.jpg)
+<p align="center">
+  <img src="assets/images/solar_panel_mlops.jpg" alt="Solar Panel MLOps Pipeline" width="80%">
+</p>
 
 This repository provides:
 
@@ -283,7 +285,9 @@ To stop everything:
 ```bash
 docker compose down
 ```
-![Docker desktop](assets/images/docker_desktop.JPG)
+<p align="center">
+  <img src="assets/images/docker_desktop.JPG" alt="Docker Desktop" width="80%">
+</p>
 
 
 ## 📚 Training & Evaluation Pipeline
@@ -415,7 +419,9 @@ prometheus --config.file=monitoring/prometheus.yml
    - `prediction_errors_total`
    - `inference_latency_seconds_bucket`
 
-![Prometheus](assets/images/Prometheus.JPG)
+<p align="center">
+  <img src="assets/images/Prometheus.JPG" alt="Prometheus" width="80%">
+</p>
 
 ### Connect Grafana (manual, local)
 
@@ -430,8 +436,14 @@ prometheus --config.file=monitoring/prometheus.yml
 
 You now have the **same** monitoring topology as with Docker, just started manually.
 
-![Grafana](assets/images/grafana_1.JPG)
-![Grafana](assets/images/grafana_2.JPG)
+<p align="center">
+  <img src="assets/images/grafana_1.JPG" alt="Grafana Dashboard 1" width="80%">
+</p>
+
+<p align="center">
+  <img src="assets/images/grafana_2.JPG" alt="Grafana Dashboard 2" width="80%">
+</p>
+
 
 
 
@@ -535,7 +547,9 @@ For normal users running locally or via Docker Compose, this is **not required**
      docker run -d --name solar-app        -p 8082:8082 -p 9101:9101        -v /path/to/artifacts/on/host:/app/artifacts        ghcr.io/<OWNER>/<IMAGE_NAME>:latest
      ```
 
-![CI/CD](assets/images/CI_CD.JPG)
+<p align="center">
+  <img src="assets/images/CI_CD.JPG" alt="CI/CD Pipeline" width="80%">
+</p>
 
 
 ### How to enable it in *your* repo
