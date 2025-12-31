@@ -14,6 +14,14 @@ This repository provides:
 - **DVC** integration for dataset & model versioning
 -  Weights & Biases (W&B) Integration using **Wandb**
 
+<p align="center">
+  <img src="assets/images/UI2.JPG" alt="Classifier UI" width="80%">
+</p>
+<p align="center">
+  <em>The UI of the classifier</em>
+</p>
+
+
 Everything below is written so that a new user can clone the repo and run the system.
 
 ---
@@ -334,7 +342,7 @@ curl http://localhost:8082/health      # -> "OK"
 curl http://localhost:9101/metrics     # Prometheus metrics text
 ```
 
-![UI](assets/images/UI2.JPG)
+
 
 ---
 
